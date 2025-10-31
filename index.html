@@ -243,12 +243,24 @@
         </footer>
     </div>
 
+    <!-- Audio element for ka-ching sound -->
+    <audio id="kachingSound" preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3" type="audio/mpeg">
+    </audio>
+
     <script>
         const spotPrices = new Map();
         const perpPrices = new Map();
         let lastUpdateTime = 0;
         const UPDATE_THROTTLE_MS = 300;
         let updateScheduled = false;
+
+        // Track which symbols have triggered the alert to avoid spam
+        const alertedSymbols = new Set();
+
+        // Sound cooldown to prevent audio spam
+        let lastSoundTime = 0;
+        const SOUND_COOLDOWN_MS = 3000; // 3 seconds between sounds
 
         // Connect to Binance Spot WebSocket
         function connectSpotWebSocket() {
@@ -348,6 +360,17 @@
             }
         }
 
+        // Play ka-ching sound
+        function playKachingSound() {
+            const now = Date.now();
+            if (now - lastSoundTime < SOUND_COOLDOWN_MS) return;
+
+            const audio = document.getElementById('kachingSound');
+            audio.currentTime = 0;
+            audio.play().catch(err => console.log('Audio play failed:', err));
+            lastSoundTime = now;
+        }
+
         // Calculate and display the differences
         function displayDifferences() {
             const differences = [];
@@ -366,6 +389,18 @@
                         difference: diff,
                         percentDiff,
                     });
+
+                    // Check if spot is 2% or more above perp
+                    if (percentDiff >= 2.0 && !alertedSymbols.has(symbol)) {
+                        alertedSymbols.add(symbol);
+                        playKachingSound();
+                        console.log(`🔔 ALERT: ${symbol} spread at ${percentDiff.toFixed(2)}%`);
+                    }
+
+                    // Remove from alerted set if spread drops below 1.5% (reset threshold)
+                    if (percentDiff < 1.5) {
+                        alertedSymbols.delete(symbol);
+                    }
                 }
             }
 
