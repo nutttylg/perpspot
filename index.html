@@ -107,8 +107,8 @@
         }
 
         table {
-            width: 100%;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         thead th {
@@ -118,6 +118,18 @@
             border-bottom: 1px solid #333;
             font-size: 11px;
             color: #888;
+        }
+
+        thead th:nth-child(1) {
+            width: 150px;
+        }
+
+        thead th:nth-child(2) {
+            width: 90px;
+        }
+
+        thead th:nth-child(3) {
+            width: 100px;
         }
 
         tbody tr {
