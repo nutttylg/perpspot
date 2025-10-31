@@ -73,9 +73,15 @@
 
         .tables-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
             margin-top: 20px;
+        }
+
+        @media (max-width: 1400px) {
+            .tables-container {
+                grid-template-columns: 1fr 1fr;
+            }
         }
 
         @media (max-width: 968px) {
@@ -88,6 +94,73 @@
             background: #111;
             border: 1px solid #333;
             padding: 10px;
+        }
+
+        .alert-log-wrapper {
+            background: #111;
+            border: 1px solid #333;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alert-log-body {
+            max-height: 600px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .alert-log-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .alert-log-body::-webkit-scrollbar-track {
+            background: #000;
+        }
+
+        .alert-log-body::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+        }
+
+        .alert-log-body::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .alert-log-entry {
+            padding: 6px;
+            border-bottom: 1px solid #222;
+            font-size: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-log-entry.mega {
+            background: #1a0a0a;
+            border-left: 3px solid #ef4444;
+        }
+
+        .alert-log-entry.standard {
+            border-left: 3px solid #4ade80;
+        }
+
+        .alert-log-time {
+            color: #666;
+            font-size: 9px;
+        }
+
+        .alert-log-symbol {
+            color: #ddd;
+            font-weight: bold;
+        }
+
+        .alert-log-percent {
+            color: #4ade80;
+        }
+
+        .alert-log-entry.mega .alert-log-percent {
+            color: #ef4444;
         }
 
         .table-header {
@@ -380,6 +453,15 @@
                     </tbody>
                 </table>
             </div>
+
+            <div class="alert-log-wrapper">
+                <div class="table-header" style="color: #fff;">ALERT LOG</div>
+                <div class="alert-log-body" id="alertLogBody">
+                    <div style="text-align: center; padding: 20px; color: #666; font-size: 11px;">
+                        NO ALERTS YET
+                    </div>
+                </div>
+            </div>
         </div>
 
         <footer>
@@ -417,6 +499,9 @@
         // Sound cooldown to prevent audio spam
         let lastSoundTime = 0;
         const SOUND_COOLDOWN_MS = 3000; // 3 seconds between sounds
+
+        // Alert log array
+        const alertLog = [];
 
         // Connect to Binance Spot WebSocket
         function connectSpotWebSocket() {
@@ -529,6 +614,47 @@
             }
         }
 
+        // Add entry to alert log
+        function addAlertLog(symbol, percentDiff, isMega) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+
+            alertLog.unshift({
+                symbol,
+                percent: percentDiff,
+                time: timeStr,
+                isMega
+            });
+
+            // Keep only last 100 alerts
+            if (alertLog.length > 100) {
+                alertLog.pop();
+            }
+
+            updateAlertLogDisplay();
+        }
+
+        // Update alert log display
+        function updateAlertLogDisplay() {
+            const logBody = document.getElementById('alertLogBody');
+
+            if (alertLog.length === 0) {
+                logBody.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; font-size: 11px;">NO ALERTS YET</div>';
+                return;
+            }
+
+            logBody.innerHTML = alertLog.map(entry => `
+                <div class="alert-log-entry ${entry.isMega ? 'mega' : 'standard'}">
+                    <div>
+                        <span class="alert-log-symbol">${entry.symbol}</span>
+                        <span class="alert-log-percent"> ${entry.percent.toFixed(2)}%</span>
+                        ${entry.isMega ? ' <span style="color: #ef4444; font-size: 10px;">★ MEGA</span>' : ''}
+                    </div>
+                    <div class="alert-log-time">${entry.time}</div>
+                </div>
+            `).join('');
+        }
+
         // Calculate and display the differences
         function displayDifferences() {
             const differences = [];
@@ -560,6 +686,7 @@
                     if (percentDiff >= threshold2 && currentLevel < 2) {
                         alertedSymbols.set(symbol, 2);
                         playAlertSound(sound2);
+                        addAlertLog(symbol, percentDiff, true);
                         console.log(`🚨 MEGA ALERT: ${symbol} spread at ${percentDiff.toFixed(2)}%`);
 
                         // Update last alert text
@@ -570,6 +697,7 @@
                     } else if (percentDiff >= threshold1 && currentLevel < 1) {
                         alertedSymbols.set(symbol, 1);
                         playAlertSound(sound1);
+                        addAlertLog(symbol, percentDiff, false);
                         console.log(`🔔 ALERT: ${symbol} spread at ${percentDiff.toFixed(2)}%`);
 
                         // Update last alert text
