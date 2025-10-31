@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Binance Spot vs Perpetual Futures - Real-Time Spreads</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.connected {
+            background: #4ade80;
+        }
+
+        .status-dot.disconnected {
+            background: #ef4444;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        @media (max-width: 968px) {
+            .tables-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .table-wrapper {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+        }
+
+        .table-header {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+        }
+
+        .table-header.positive {
+            color: #4ade80;
+        }
+
+        .table-header.negative {
+            color: #ef4444;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            text-align: left;
+            padding: 12px;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        tbody td {
+            padding: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .symbol {
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+        }
+
+        .spread-positive {
+            color: #4ade80;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .spread-negative {
+            color: #ef4444;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Binance Spot vs Perpetual Futures</h1>
+            <p>Real-Time Arbitrage Opportunities</p>
+        </header>
+
+        <div class="status">
+            <div class="status-item">
+                <span class="status-dot" id="spotStatus"></span>
+                <span>Spot: <strong id="spotStatusText">Connecting...</strong></span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot" id="perpStatus"></span>
+                <span>Futures: <strong id="perpStatusText">Connecting...</strong></span>
+            </div>
+            <div class="status-item">
+                <span>Pairs Tracked: <strong id="pairsCount">0</strong></span>
+            </div>
+        </div>
+
+        <div class="tables-container">
+            <div class="table-wrapper">
+                <div class="table-header positive">✅ TOP 10 POSITIVE SPREADS (Spot > Perp)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th style="text-align: right;">Spread %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="positiveTable">
+                        <tr><td colspan="2" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-wrapper">
+                <div class="table-header negative">❌ TOP 10 NEGATIVE SPREADS (Perp > Spot)</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th style="text-align: right;">Spread %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="negativeTable">
+                        <tr><td colspan="2" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>Data updates in real-time via Binance WebSocket API</p>
+            <p>💡 Positive spreads indicate potential to buy on perp and sell on spot</p>
+        </footer>
+    </div>
+
+    <script>
+        const spotPrices = new Map();
+        const perpPrices = new Map();
+        let lastUpdateTime = 0;
+        const UPDATE_THROTTLE_MS = 300;
+        let updateScheduled = false;
+
+        // Connect to Binance Spot WebSocket
+        function connectSpotWebSocket() {
+            const ws = new WebSocket('wss://stream.binance.com:9443/ws/!ticker@arr');
+
+            ws.onopen = () => {
+                document.getElementById('spotStatus').className = 'status-dot connected';
+                document.getElementById('spotStatusText').textContent = 'Connected';
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const tickers = JSON.parse(event.data);
+                    for (const ticker of tickers) {
+                        if (ticker.s.endsWith('USDT')) {
+                            spotPrices.set(ticker.s, {
+                                symbol: ticker.s,
+                                price: parseFloat(ticker.c),
+                            });
+                        }
+                    }
+                    scheduleUpdate();
+                } catch (error) {
+                    console.error('Error parsing spot data:', error);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('Spot WebSocket error:', error);
+                document.getElementById('spotStatus').className = 'status-dot disconnected';
+                document.getElementById('spotStatusText').textContent = 'Error';
+            };
+
+            ws.onclose = () => {
+                document.getElementById('spotStatus').className = 'status-dot disconnected';
+                document.getElementById('spotStatusText').textContent = 'Reconnecting...';
+                setTimeout(connectSpotWebSocket, 5000);
+            };
+        }
+
+        // Connect to Binance USDM Perpetual Futures WebSocket
+        function connectPerpWebSocket() {
+            const ws = new WebSocket('wss://fstream.binance.com/ws/!ticker@arr');
+
+            ws.onopen = () => {
+                document.getElementById('perpStatus').className = 'status-dot connected';
+                document.getElementById('perpStatusText').textContent = 'Connected';
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const tickers = JSON.parse(event.data);
+                    for (const ticker of tickers) {
+                        if (ticker.s.endsWith('USDT')) {
+                            perpPrices.set(ticker.s, {
+                                symbol: ticker.s,
+                                price: parseFloat(ticker.c),
+                            });
+                        }
+                    }
+                    scheduleUpdate();
+                } catch (error) {
+                    console.error('Error parsing perp data:', error);
+                }
+            };
+
+            ws.onerror = (error) => {
+                console.error('Perp WebSocket error:', error);
+                document.getElementById('perpStatus').className = 'status-dot disconnected';
+                document.getElementById('perpStatusText').textContent = 'Error';
+            };
+
+            ws.onclose = () => {
+                document.getElementById('perpStatus').className = 'status-dot disconnected';
+                document.getElementById('perpStatusText').textContent = 'Reconnecting...';
+                setTimeout(connectPerpWebSocket, 5000);
+            };
+        }
+
+        // Throttled update function
+        function scheduleUpdate() {
+            if (updateScheduled) return;
+
+            const now = Date.now();
+            const timeSinceLastUpdate = now - lastUpdateTime;
+
+            if (timeSinceLastUpdate >= UPDATE_THROTTLE_MS) {
+                displayDifferences();
+                lastUpdateTime = now;
+            } else {
+                updateScheduled = true;
+                setTimeout(() => {
+                    updateScheduled = false;
+                    displayDifferences();
+                    lastUpdateTime = Date.now();
+                }, UPDATE_THROTTLE_MS - timeSinceLastUpdate);
+            }
+        }
+
+        // Calculate and display the differences
+        function displayDifferences() {
+            const differences = [];
+
+            // Find common symbols
+            for (const [symbol, spotData] of spotPrices) {
+                if (perpPrices.has(symbol)) {
+                    const perpData = perpPrices.get(symbol);
+                    const diff = spotData.price - perpData.price;
+                    const percentDiff = (diff / perpData.price) * 100;
+
+                    differences.push({
+                        symbol,
+                        spotPrice: spotData.price,
+                        perpPrice: perpData.price,
+                        difference: diff,
+                        percentDiff,
+                    });
+                }
+            }
+
+            // Update pairs count
+            document.getElementById('pairsCount').textContent = differences.length;
+
+            // Separate positive and negative spreads
+            const positiveSpreads = differences
+                .filter(d => d.percentDiff > 0)
+                .sort((a, b) => b.percentDiff - a.percentDiff)
+                .slice(0, 10);
+
+            const negativeSpreads = differences
+                .filter(d => d.percentDiff < 0)
+                .sort((a, b) => a.percentDiff - b.percentDiff)
+                .slice(0, 10);
+
+            // Update positive spreads table
+            const positiveTable = document.getElementById('positiveTable');
+            positiveTable.innerHTML = positiveSpreads.length > 0
+                ? positiveSpreads.map(item => `
+                    <tr>
+                        <td class="symbol">${item.symbol}</td>
+                        <td class="spread-positive">+${item.percentDiff.toFixed(4)}%</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="2" class="loading">No positive spreads found</td></tr>';
+
+            // Update negative spreads table
+            const negativeTable = document.getElementById('negativeTable');
+            negativeTable.innerHTML = negativeSpreads.length > 0
+                ? negativeSpreads.map(item => `
+                    <tr>
+                        <td class="symbol">${item.symbol}</td>
+                        <td class="spread-negative">${item.percentDiff.toFixed(4)}%</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="2" class="loading">No negative spreads found</td></tr>';
+        }
+
+        // Initialize connections
+        connectSpotWebSocket();
+        connectPerpWebSocket();
+    </script>
+</body>
+</html>
