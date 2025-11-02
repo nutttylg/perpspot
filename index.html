@@ -78,6 +78,14 @@
             margin-top: 20px;
         }
 
+        .binance-section {
+            display: contents;
+        }
+
+        .bybit-section {
+            display: contents;
+        }
+
         @media (max-width: 1400px) {
             .tables-container {
                 grid-template-columns: 1fr 1fr;
@@ -410,62 +418,116 @@
         <div class="status">
             <div class="status-item">
                 <span class="status-dot" id="spotStatus"></span>
-                <span>SPOT: <span id="spotStatusText">CONNECTING</span></span>
+                <span>BINANCE SPOT: <span id="spotStatusText">CONNECTING</span></span>
             </div>
             <div class="status-item">
                 <span class="status-dot" id="perpStatus"></span>
-                <span>PERP: <span id="perpStatusText">CONNECTING</span></span>
+                <span>BINANCE PERP: <span id="perpStatusText">CONNECTING</span></span>
             </div>
             <div class="status-item">
-                <span>PAIRS: <span id="pairsCount">0</span></span>
+                <span class="status-dot" id="bybitSpotStatus"></span>
+                <span>BYBIT SPOT: <span id="bybitSpotStatusText">CONNECTING</span></span>
+            </div>
+            <div class="status-item">
+                <span>BIN PAIRS: <span id="pairsCount">0</span></span>
+            </div>
+            <div class="status-item">
+                <span>BYBIT PAIRS: <span id="bybitPairsCount">0</span></span>
             </div>
         </div>
 
         <div class="tables-container">
-            <div class="table-wrapper">
-                <div class="table-header positive">TOP 20 POSITIVE SPREADS (SPOT > PERP)</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>SYMBOL</th>
-                            <th style="text-align: right;">SPREAD %</th>
-                            <th style="text-align: right;">DELTA $</th>
-                        </tr>
-                    </thead>
-                    <tbody id="positiveTable">
-                        <tr><td colspan="3" class="loading">LOADING...</td></tr>
-                    </tbody>
-                </table>
+            <!-- Binance Spot vs Binance Perp Section -->
+            <div class="binance-section">
+                <div class="table-wrapper">
+                    <div class="table-header positive">BINANCE: TOP 20 POSITIVE SPREADS (SPOT > PERP)</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th style="text-align: right;">SPREAD %</th>
+                                <th style="text-align: right;">DELTA $</th>
+                            </tr>
+                        </thead>
+                        <tbody id="positiveTable">
+                            <tr><td colspan="3" class="loading">LOADING...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-wrapper">
+                    <div class="table-header negative">BINANCE: TOP 20 NEGATIVE SPREADS (PERP > SPOT)</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th style="text-align: right;">SPREAD %</th>
+                                <th style="text-align: right;">DELTA $</th>
+                            </tr>
+                        </thead>
+                        <tbody id="negativeTable">
+                            <tr><td colspan="3" class="loading">LOADING...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert-log-wrapper">
+                    <div class="table-header" style="color: #fff;">ALERT LOG</div>
+                    <div class="alert-log-body" id="alertLogBody">
+                        <div style="text-align: center; padding: 20px; color: #666; font-size: 11px;">
+                            NO ALERTS YET
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="table-wrapper">
-                <div class="table-header negative">TOP 20 NEGATIVE SPREADS (PERP > SPOT)</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>SYMBOL</th>
-                            <th style="text-align: right;">SPREAD %</th>
-                            <th style="text-align: right;">DELTA $</th>
-                        </tr>
-                    </thead>
-                    <tbody id="negativeTable">
-                        <tr><td colspan="3" class="loading">LOADING...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <!-- Bybit Spot vs Binance Perp Section -->
+            <div class="bybit-section">
+                <div class="table-wrapper">
+                    <div class="table-header positive">BYBIT SPOT - BIN PERPS: TOP 20 POSITIVE (SPOT > PERP)</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th style="text-align: right;">SPREAD %</th>
+                                <th style="text-align: right;">DELTA $</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bybitPositiveTable">
+                            <tr><td colspan="3" class="loading">LOADING...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="alert-log-wrapper">
-                <div class="table-header" style="color: #fff;">ALERT LOG</div>
-                <div class="alert-log-body" id="alertLogBody">
-                    <div style="text-align: center; padding: 20px; color: #666; font-size: 11px;">
-                        NO ALERTS YET
+                <div class="table-wrapper">
+                    <div class="table-header negative">BYBIT SPOT - BIN PERPS: TOP 20 NEGATIVE (PERP > SPOT)</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>SYMBOL</th>
+                                <th style="text-align: right;">SPREAD %</th>
+                                <th style="text-align: right;">DELTA $</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bybitNegativeTable">
+                            <tr><td colspan="3" class="loading">LOADING...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="alert-log-wrapper">
+                    <div class="table-header" style="color: #fff;">BYBIT ALERT LOG</div>
+                    <div class="alert-log-body" id="bybitAlertLogBody">
+                        <div style="text-align: center; padding: 20px; color: #666; font-size: 11px;">
+                            NO ALERTS YET
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>REAL-TIME DATA VIA BINANCE WEBSOCKET API</p>
+            <p>REAL-TIME DATA VIA BINANCE & BYBIT WEBSOCKET APIS</p>
             <div class="alert-status">
                 <span class="alert-indicator"></span>
                 <span id="alertStatusText">SOUND ALERTS ACTIVE</span>
@@ -489,19 +551,22 @@
     <script>
         const spotPrices = new Map();
         const perpPrices = new Map();
+        const bybitSpotPrices = new Map();
         let lastUpdateTime = 0;
         const UPDATE_THROTTLE_MS = 300;
         let updateScheduled = false;
 
         // Track which symbols have triggered alerts (stores threshold level)
         const alertedSymbols = new Map();
+        const bybitAlertedSymbols = new Map();
 
         // Sound cooldown to prevent audio spam
         let lastSoundTime = 0;
         const SOUND_COOLDOWN_MS = 3000; // 3 seconds between sounds
 
-        // Alert log array
+        // Alert log arrays
         const alertLog = [];
+        const bybitAlertLog = [];
 
         // Connect to Binance Spot WebSocket
         function connectSpotWebSocket() {
@@ -581,6 +646,41 @@
             };
         }
 
+        // Fetch Bybit Spot prices via REST API (since WebSocket doesn't support all tickers at once)
+        async function fetchBybitSpotPrices() {
+            try {
+                const response = await fetch('https://api.bybit.com/v5/market/tickers?category=spot');
+                const data = await response.json();
+
+                if (data.retCode === 0 && data.result && data.result.list) {
+                    document.getElementById('bybitSpotStatus').className = 'status-dot connected';
+                    document.getElementById('bybitSpotStatusText').textContent = 'CONNECTED';
+
+                    for (const ticker of data.result.list) {
+                        if (ticker.symbol.endsWith('USDT')) {
+                            bybitSpotPrices.set(ticker.symbol, {
+                                symbol: ticker.symbol,
+                                price: parseFloat(ticker.lastPrice),
+                            });
+                        }
+                    }
+                    scheduleUpdate();
+                } else {
+                    throw new Error('Invalid response from Bybit API');
+                }
+            } catch (error) {
+                console.error('Error fetching Bybit spot data:', error);
+                document.getElementById('bybitSpotStatus').className = 'status-dot disconnected';
+                document.getElementById('bybitSpotStatusText').textContent = 'ERROR';
+            }
+        }
+
+        // Poll Bybit API every 2 seconds
+        function startBybitPolling() {
+            fetchBybitSpotPrices(); // Initial fetch
+            setInterval(fetchBybitSpotPrices, 2000); // Poll every 2 seconds
+        }
+
         // Throttled update function
         function scheduleUpdate() {
             if (updateScheduled) return;
@@ -653,6 +753,47 @@
                     <div class="alert-log-time">${entry.time}</div>
                 </div>
             `).join('');
+        }
+
+        // Update Bybit alert log display
+        function updateBybitAlertLogDisplay() {
+            const logBody = document.getElementById('bybitAlertLogBody');
+
+            if (bybitAlertLog.length === 0) {
+                logBody.innerHTML = '<div style="text-align: center; padding: 20px; color: #666; font-size: 11px;">NO ALERTS YET</div>';
+                return;
+            }
+
+            logBody.innerHTML = bybitAlertLog.map(entry => `
+                <div class="alert-log-entry ${entry.isMega ? 'mega' : 'standard'}">
+                    <div>
+                        <span class="alert-log-symbol">${entry.symbol}</span>
+                        <span class="alert-log-percent"> ${entry.percent.toFixed(2)}%</span>
+                        ${entry.isMega ? ' <span style="color: #ef4444; font-size: 10px;">★ MEGA</span>' : ''}
+                    </div>
+                    <div class="alert-log-time">${entry.time}</div>
+                </div>
+            `).join('');
+        }
+
+        // Add entry to Bybit alert log
+        function addBybitAlertLog(symbol, percentDiff, isMega) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString();
+
+            bybitAlertLog.unshift({
+                symbol,
+                percent: percentDiff,
+                time: timeStr,
+                isMega
+            });
+
+            // Keep only last 100 alerts
+            if (bybitAlertLog.length > 100) {
+                bybitAlertLog.pop();
+            }
+
+            updateBybitAlertLogDisplay();
         }
 
         // Calculate and display the differences
@@ -752,6 +893,97 @@
                     </tr>
                 `).join('')
                 : '<tr><td colspan="3" class="loading">NO DATA</td></tr>';
+
+            // Calculate Bybit Spot vs Binance Perp differences
+            // Only include symbols that are NOT in Binance Spot (to show unique Bybit pairs)
+            const bybitDifferences = [];
+
+            // Find common symbols (Bybit spot vs Binance perp)
+            for (const [symbol, perpData] of perpPrices) {
+                // Skip if this symbol is already in Binance Spot
+                if (spotPrices.has(symbol)) {
+                    continue;
+                }
+
+                if (bybitSpotPrices.has(symbol)) {
+                    const bybitSpotData = bybitSpotPrices.get(symbol);
+                    const diff = bybitSpotData.price - perpData.price;
+                    const percentDiff = (diff / perpData.price) * 100;
+
+                    bybitDifferences.push({
+                        symbol,
+                        perpPrice: perpData.price,
+                        bybitSpotPrice: bybitSpotData.price,
+                        difference: diff,
+                        percentDiff,
+                    });
+
+                    // Get threshold settings
+                    const threshold1 = parseFloat(document.getElementById('threshold1').value) || 2.0;
+                    const threshold2 = parseFloat(document.getElementById('threshold2').value) || 5.0;
+                    const sound1 = document.getElementById('sound1').value;
+                    const sound2 = document.getElementById('sound2').value;
+
+                    // Check thresholds (higher threshold takes precedence)
+                    const currentLevel = bybitAlertedSymbols.get(symbol) || 0;
+
+                    if (percentDiff >= threshold2 && currentLevel < 2) {
+                        bybitAlertedSymbols.set(symbol, 2);
+                        playAlertSound(sound2);
+                        addBybitAlertLog(symbol, percentDiff, true);
+                        console.log(`🚨 BYBIT MEGA ALERT: ${symbol} spread at ${percentDiff.toFixed(2)}%`);
+                    } else if (percentDiff >= threshold1 && currentLevel < 1) {
+                        bybitAlertedSymbols.set(symbol, 1);
+                        playAlertSound(sound1);
+                        addBybitAlertLog(symbol, percentDiff, false);
+                        console.log(`🔔 BYBIT ALERT: ${symbol} spread at ${percentDiff.toFixed(2)}%`);
+                    }
+
+                    // Reset threshold tracking if spread drops significantly
+                    const resetThreshold = Math.min(threshold1, threshold2) * 0.75;
+                    if (percentDiff < resetThreshold) {
+                        bybitAlertedSymbols.delete(symbol);
+                    }
+                }
+            }
+
+            // Update Bybit pairs count
+            document.getElementById('bybitPairsCount').textContent = bybitDifferences.length;
+
+            // Separate positive and negative spreads for Bybit comparison
+            const bybitPositiveSpreads = bybitDifferences
+                .filter(d => d.percentDiff > 0)
+                .sort((a, b) => b.percentDiff - a.percentDiff)
+                .slice(0, 20);
+
+            const bybitNegativeSpreads = bybitDifferences
+                .filter(d => d.percentDiff < 0)
+                .sort((a, b) => a.percentDiff - b.percentDiff)
+                .slice(0, 20);
+
+            // Update Bybit positive spreads table (Perp > Spot)
+            const bybitPositiveTable = document.getElementById('bybitPositiveTable');
+            bybitPositiveTable.innerHTML = bybitPositiveSpreads.length > 0
+                ? bybitPositiveSpreads.map(item => `
+                    <tr>
+                        <td class="symbol">${item.symbol}</td>
+                        <td class="spread-positive">+${item.percentDiff.toFixed(2)}%</td>
+                        <td class="delta">$${Math.abs(item.difference).toFixed(4)}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="3" class="loading">NO DATA</td></tr>';
+
+            // Update Bybit negative spreads table (Spot > Perp)
+            const bybitNegativeTable = document.getElementById('bybitNegativeTable');
+            bybitNegativeTable.innerHTML = bybitNegativeSpreads.length > 0
+                ? bybitNegativeSpreads.map(item => `
+                    <tr>
+                        <td class="symbol">${item.symbol}</td>
+                        <td class="spread-negative">${item.percentDiff.toFixed(2)}%</td>
+                        <td class="delta">$${Math.abs(item.difference).toFixed(4)}</td>
+                    </tr>
+                `).join('')
+                : '<tr><td colspan="3" class="loading">NO DATA</td></tr>';
         }
 
         // Update alert status text based on settings
@@ -769,6 +1001,7 @@
         // Initialize connections
         connectSpotWebSocket();
         connectPerpWebSocket();
+        startBybitPolling();
 
         // Set initial alert status text
         updateAlertStatus();
